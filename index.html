@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteo Imperia Live</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(180deg, #005C97 0%, #363795 100%); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); border: 1px solid rgba(255, 255, 255, 0.18); width: 300px; }
+        h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .temp { font-size: 4rem; font-weight: bold; margin: 20px 0; }
+        .info { font-size: 1.1rem; opacity: 0.9; }
+        .footer { margin-top: 20px; font-size: 0.8rem; opacity: 0.6; }
+        .update-btn { margin-top: 20px; padding: 10px 20px; border: none; border-radius: 50px; background: white; color: #363795; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Imperia</h1>
+    <div id="icon">☀️</div>
+    <div class="temp" id="temperature">--°C</div>
+    <div class="info" id="description">Caricamento...</div>
+    <div class="info" id="wind">Vento: -- km/h</div>
+    
+    <button class="update-btn" onclick="getMeteo()">Aggiorna</button>
+    
+    <div class="footer">Dati in tempo reale dalle stazioni locali</div>
+</div>
+
+<script>
+    async function getMeteo() {
+        // Coordinate precise di Imperia
+        const lat = 43.8882;
+        const lon = 8.0286;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&windspeed_unit=kmh`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const mw = data.current_weather;
+
+            document.getElementById('temperature').innerText = Math.round(mw.temperature) + "°C";
+            document.getElementById('wind').innerText = "Vento: " + mw.windspeed + " km/h";
+            
+            // Interpretazione codici meteo semplici
+            const code = mw.weathercode;
+            let desc = "Sereno";
+            let icon = "☀️";
+            if(code > 0 && code <= 3) { desc = "Poco nuvoloso"; icon = "⛅"; }
+            if(code > 3) { desc = "Coperto / Pioggia"; icon = "🌧️"; }
+            
+            document.getElementById('description').innerText = desc;
+            document.getElementById('icon').style.fontSize = "3rem";
+            document.getElementById('icon').innerText = icon;
+
+        } catch (error) {
+            document.getElementById('description').innerText = "Errore connessione";
+        }
+    }
+
+    // Avvia la funzione all'apertura
+    getMeteo();
+</script>
+
+</body>
+</html>
